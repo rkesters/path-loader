@@ -28,7 +28,6 @@ import path from 'path';
 import {LoadCallback, LoadOptions} from '../typedefs';
 
 
-
 /**
  * Loads a file from the filesystem.
  *

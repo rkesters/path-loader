@@ -93,8 +93,7 @@ export function load (location: string, options: LoadOptions, callback) {
     callback(err);
     return;
   }
-  const s = request.post;
-
+  
   const realRequest: SuperAgentRequest  =
   request[realMethod === 'delete' ? 'del' : realMethod](location);
 

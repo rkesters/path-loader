@@ -68,6 +68,7 @@ export interface RequestCallback {
   (err: Error | null, req: SuperAgentRequest): void;
   (err: Error | null, req?: SuperAgentRequest): void;
 }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface ResponseCallback<T = any> {
   (err: Error): void;
   (err: Error | null, data: T): void;
