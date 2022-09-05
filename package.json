@@ -1,6 +1,6 @@
 {
   "name": "@rkesters/path-loader",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Utility that provides a single API for loading the content of a path/URL.",
   "main": "./dist/node/index.js",
   "types": "./dist/node/index.d.ts",
