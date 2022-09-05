@@ -5,6 +5,7 @@
   "main": "./dist/node/index.js",
   "types": "./dist/node/index.d.ts",
   "scripts": {
+    "prepublish": "npm run build",
     "coverage:report": "npx lcov-viewer lcov -o .coverage/html .coverage/lcov.info",
     "coverage:cli": "npx lcov-cli-report-viewer .coverage/node/lcov.info",
     "coverage:merge": "npx lcov-result-merger --prepend-source-files '.coverage/**/lcov.info' .coverage/lcov.info",
