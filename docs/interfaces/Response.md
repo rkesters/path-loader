@@ -246,7 +246,7 @@ ___
 
 #### Defined in
 
-[src/typedefs.ts:4](https://github.com/rkesters/path-loader/blob/e8e5c1c/src/typedefs.ts#L4)
+[src/typedefs.ts:4](https://github.com/rkesters/path-loader/blob/f2003c2/src/typedefs.ts#L4)
 
 ___
 

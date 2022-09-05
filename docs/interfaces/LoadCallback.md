@@ -20,7 +20,7 @@
 
 #### Defined in
 
-[src/typedefs.ts:7](https://github.com/rkesters/path-loader/blob/e8e5c1c/src/typedefs.ts#L7)
+[src/typedefs.ts:7](https://github.com/rkesters/path-loader/blob/f2003c2/src/typedefs.ts#L7)
 
 ### LoadCallback
 
@@ -39,7 +39,7 @@
 
 #### Defined in
 
-[src/typedefs.ts:8](https://github.com/rkesters/path-loader/blob/e8e5c1c/src/typedefs.ts#L8)
+[src/typedefs.ts:8](https://github.com/rkesters/path-loader/blob/f2003c2/src/typedefs.ts#L8)
 
 ### LoadCallback
 
@@ -58,4 +58,4 @@
 
 #### Defined in
 
-[src/typedefs.ts:9](https://github.com/rkesters/path-loader/blob/e8e5c1c/src/typedefs.ts#L9)
+[src/typedefs.ts:9](https://github.com/rkesters/path-loader/blob/f2003c2/src/typedefs.ts#L9)
