@@ -1,4 +1,4 @@
-path-loader / [Exports](modules.md)
+@rkesters/path-loader / [Exports](modules.md)
 
 # path-loader
 
