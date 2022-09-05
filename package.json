@@ -85,7 +85,6 @@
     "@types/mocha": "^9.1.1",
     "@types/node": "^18.7.13",
     "@types/rimraf": "^3.0.2",
-    "@types/superagent": "^4.1.15",
     "@types/webpack": "^4.41.26",
     "@typescript-eslint/eslint-plugin": "^5.35.1",
     "@typescript-eslint/parser": "^5.35.1",
@@ -123,6 +122,7 @@
     "webpack-cli": "^4.10.0"
   },
   "dependencies": {
+    "@types/superagent": "^4.1.15",
     "bluebird": "^3.7.2",
     "lodash": "^4.17.21",
     "superagent": "^8.0.0"
