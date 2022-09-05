@@ -44,7 +44,7 @@ module.exports = function (config) {
       'karma-webpack',
     ],
         coverageIstanbulReporter: {
-            reports: ['lcov'],
+            reports: ['lcov', 'text'],
             dir: '.coverage/karma',
             fixWebpackSourcePaths: true,
             'report-config': {
@@ -73,10 +73,7 @@ module.exports = function (config) {
               test: /\.ts$/,
               exclude: /test/,
               enforce: 'post',
-              use: {
-                  loader: 'istanbul-instrumenter-loader',
-                  options: {esModules: true},
-              },
+              use: '@jsdevtools/coverage-istanbul-loader',
           }
         ],
       },
