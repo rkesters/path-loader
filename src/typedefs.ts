@@ -1,39 +1,87 @@
-import {SuperAgentRequest, Response as SuperAgentResponse} from 'superagent';
+import { get, has, isFunction, isPlainObject, isString } from 'lodash';
+import { SuperAgentRequest, Response as SuperAgentResponse } from 'superagent';
+
+// export type LoaderReturn<T> = [T] extends [never] ? (string | SuperAgentResponse) : T
 
 export interface Response extends SuperAgentResponse {
-  location: string;
+    location: string;
 }
 export interface LoadCallback {
-  (err: Error | null): void;
-  (err: Error | null, data: string | SuperAgentResponse): void;
-  (err: Error | null, data?: string | SuperAgentResponse): void;
+    (err: Error | null): void;
+    (err: Error | null, data: string | SuperAgentResponse ): void;
+    (err: Error | null, data?: string | SuperAgentResponse ): void;
 }
 
-export interface Loader {
-  (location: string, options: LoadOptions, callback: LoadCallback);
+export interface Loader<T = any> {
+    (location: string, options: LoadOptions<T>, callback: LoadCallback): void;
+    (location: string, options: LoadOptionsBase, callback: LoadCallback): void;
+    (location: string, options: LoadOptionsBase | LoadOptions<T>, callback: LoadCallback): void;
 }
 
+export function isLoadOptionsBase(value: unknown): value is LoadOptionsBase {
+    if (!isPlainObject(value)) return false;
+
+    if (has(value, 'encoding')) {
+        if (
+            ![
+                'ascii',
+                'utf8',
+                'utf-8',
+                'utf16le',
+                'ucs2',
+                'ucs-2',
+                'base64',
+                'base64url',
+                'latin1',
+                'binary',
+                'hex',
+            ].includes(get(value, 'encoding'))
+        ) {
+            return false;
+        }
+    }
+
+    if (has(value, 'method') ? !isString(get(value, 'method')) : false) {
+        return false;
+    }
+    if (has(value, 'prepareRequest') ? !isFunction(get(value, 'prepareRequest')) : false) {
+        return false;
+    }
+
+    return true;
+}
+export function isLoadOptions<T = any>(value: unknown): value is LoadOptions<T> {
+    if (!isLoadOptionsBase(value)) {
+        return false;
+    }
+    if (!(has(value, 'processContent') && isFunction(get(value, 'processContent')))) {
+        return false;
+    }
+}
+
+export interface LoadOptionsBase {
+    /**
+     * The encoding to use when loading the file *(File loader only)*
+     */
+    encoding?: BufferEncoding;
+    /**
+     * The HTTP method to use for the request *(HTTP loader only)*
+     */
+    method?: string;
+    /**
+     * The callback used to prepare the request *(HTTP loader only)*
+     */
+    prepareRequest?: PrepareRequestCallback;
+}
 /**
  * Options used when loading a path.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export interface LoadOptions<T = any> {
-  /**
-   * The encoding to use when loading the file *(File loader only)*
-   */
-  encoding?: BufferEncoding;
-  /**
-   * The HTTP method to use for the request *(HTTP loader only)*
-   */
-  method?: string;
-  /**
-   * The callback used to prepare the request *(HTTP loader only)*
-   */
-  prepareRequest?: PrepareRequestCallback;
-  /**
-   * The callback used to process the response
-   */
-  processContent?: ProcessResponseCallback<T>;
+export interface LoadOptions<T = any> extends LoadOptionsBase {
+    /**
+     * The callback used to process the response
+     */
+    processContent: ProcessResponseCallback<T>;
 }
 
 /**
@@ -43,13 +91,9 @@ export interface LoadOptions<T = any> {
  * @param callback - First callback
  */
 export interface PrepareRequestCallback {
-  (req: SuperAgentRequest, callback: RequestCallback): void;
-  (req: SuperAgentRequest, location: string, callback: RequestCallback): void;
-  (
-    req: SuperAgentRequest,
-    location: string | RequestCallback,
-    callback?: RequestCallback
-  ): void;
+    (req: SuperAgentRequest, callback: RequestCallback): void;
+    (req: SuperAgentRequest, location: string, callback: RequestCallback): void;
+    (req: SuperAgentRequest, location: string | RequestCallback, callback?: RequestCallback): void;
 }
 
 /**
@@ -61,19 +105,16 @@ export interface PrepareRequestCallback {
  * @returns the result of processing the responses
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type ProcessResponseCallback<T = any> = (
-  res: Response,
-  callback: ResponseCallback<T>
-) => void;
+export type ProcessResponseCallback<T = any> = (res: Response, callback: ResponseCallback<T>) => void;
 
 export interface RequestCallback {
-  (err: Error): void;
-  (err: Error | null, req: SuperAgentRequest): void;
-  (err: Error | null, req?: SuperAgentRequest): void;
+    (err: Error): void;
+    (err: Error | null, req: SuperAgentRequest): void;
+    (err: Error | null, req?: SuperAgentRequest): void;
 }
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface ResponseCallback<T = any> {
-  (err: Error): void;
-  (err: Error | null, data: T): void;
-  (err: Error | null, data?: T): void;
+    (err: Error): void;
+    (err: Error | null, data: T): void;
+    (err: Error | null, data?: T): void;
 }

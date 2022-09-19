@@ -27,28 +27,24 @@ export * from './typedefs';
 import * as HttpLoader from './loaders/http';
 import * as FilerLoader from './loaders/file';
 import Bluebird from 'bluebird';
-import {Loader, LoadOptions, Response} from './typedefs';
-import {isEmpty, isPlainObject, isUndefined} from 'lodash';
-import {Response as SuperAgentResponse} from 'superagent';
-
+import { isLoadOptions, Loader, LoadOptions, LoadOptionsBase, Response } from './typedefs';
+import { isEmpty, isPlainObject, isString, isUndefined } from 'lodash';
+import { Response as SuperAgentResponse } from 'superagent';
 
 type LoadModule = { load: Loader };
-
-
 const supportedLoaders: Record<string, LoadModule> = {
-  file: FilerLoader,
-  http: HttpLoader,
-  https: HttpLoader,
+    file: FilerLoader,
+    http: HttpLoader,
+    https: HttpLoader,
 };
-const defaultLoader: LoadModule =
-  typeof window === 'object' ? supportedLoaders.http : supportedLoaders.file;
+const defaultLoader: LoadModule = typeof window === 'object' ? supportedLoaders.http : supportedLoaders.file;
 
-function getScheme (location: string): string {
-  if (!isUndefined (location)) {
-    location = !location.includes('://') ? '' : location.split('://')[0];
-  }
+function getScheme(location: string): string {
+    if (!isUndefined(location)) {
+        location = !location.includes('://') ? '' : location.split('://')[0];
+    }
 
-  return location;
+    return location;
 }
 
 /**
@@ -57,35 +53,32 @@ function getScheme (location: string): string {
  * @module path-loader
  */
 
-function getLoader (location: string): LoadModule {
-  const scheme = getScheme(location);
-  let loader = supportedLoaders[scheme];
+function getLoader(location: string): LoadModule {
+    const scheme = getScheme(location);
+    let loader = supportedLoaders[scheme];
 
-  if (isUndefined(loader)) {
-    if (isEmpty (scheme)) {
-      loader = defaultLoader;
-    } else {
-      throw new Error('Unsupported scheme: ' + scheme);
+    if (isUndefined(loader)) {
+        if (isEmpty(scheme)) {
+            loader = defaultLoader;
+        } else {
+            throw new Error('Unsupported scheme: ' + scheme);
+        }
     }
-  }
 
-  return loader;
+    return loader;
 }
 
-function validateArgs (location: string, opts: LoadOptions = {}) {
-  if (typeof location === 'undefined') {
-    throw new TypeError('location is required');
-  } else if (typeof location !== 'string') {
-    throw new TypeError('location must be a string');
-  }
-  if (typeof opts !== 'object') {
-    throw new TypeError('options must be an object');
-  } else if (
-    typeof opts.processContent !== 'undefined' &&
-    typeof opts.processContent !== 'function'
-  ) {
-    throw new TypeError('options.processContent must be a function');
-  }
+function validateArgs(location: string, opts: LoadOptions | LoadOptionsBase = {}) {
+    if (typeof location === 'undefined') {
+        throw new TypeError('location is required');
+    } else if (typeof location !== 'string') {
+        throw new TypeError('location must be a string');
+    }
+    if (typeof opts !== 'object') {
+        throw new TypeError('options must be an object');
+    } else if ((opts as LoadOptions).processContent && typeof (opts as LoadOptions).processContent !== 'function') {
+        throw new TypeError('options.processContent must be a function');
+    }
 }
 
 /**
@@ -153,34 +146,36 @@ function validateArgs (location: string, opts: LoadOptions = {}) {
  *   });
  */
 
-type LoaderReturn<T> = [T] extends [never] ? (string | SuperAgentResponse) : T
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function load<T = never> (
-  location: string,
-  options: LoadOptions<LoaderReturn<T>> = {}
-): Promise<LoaderReturn<T>> {
+export async function load(location: string): Promise<string | Response>;
+export async function load(location: string, opts: LoadOptionsBase): Promise<string | Response>;
+export async function load<T = any>(location: string, opts: LoadOptions<T>): Promise<T>;
+export async function load<T = any>(
+    location: string,
+    opts?: LoadOptions<T> | LoadOptionsBase
+): Promise<(string | Response) | T> {
+    const options: LoadOptions<T> | LoadOptionsBase = opts ?? {};
+    // Validate arguments
+    validateArgs(location, options);
 
-  // Validate arguments
-  validateArgs(location, options);
+    // Load the document from the provided location and process it
+    const loader: LoadModule = getLoader(location);
+    const promisifiedLoader = Bluebird.promisify(loader.load);
 
-  // Load the document from the provided location and process it
-  const loader: LoadModule = getLoader(location);
-  const promisifiedLoader = Bluebird.promisify(loader.load);
+    const data: string | SuperAgentResponse  = await promisifiedLoader(location, options);
 
-  const data:  string | SuperAgentResponse = await promisifiedLoader(location, options);
+    if (!isLoadOptions<T>(options)) {
+        if(isString(data)) { return data;}
+        const res: Response = data as Response;
+        res.location = location;
+        return res;
+    }
+    // For consistency between file and http, always send an object with a 'text' property containing the raw
+    // string value being processed.
+    const res: Response = isPlainObject(data) ? (data as Response) : ({ text: data } as unknown as Response);
+    // Pass the path being loaded
+    res.location = location;
+    const processContent = Bluebird.promisify(options.processContent);
 
-  if (!options.processContent) {
-    return data as LoaderReturn<T>;
-  }
-  // For consistency between file and http, always send an object with a 'text' property containing the raw
-  // string value being processed.
-  const res: Response = isPlainObject(data)
-    ? (data) as Response
-    : {text: data} as unknown as Response;
-
-  // Pass the path being loaded
-  res.location = location;
-  const processContent = Bluebird.promisify(options.processContent);
-
-  return processContent(res);
+    return processContent(res);
 }

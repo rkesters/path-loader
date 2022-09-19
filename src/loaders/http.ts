@@ -26,7 +26,7 @@
  */
 
 import {isString, isUndefined} from 'lodash';
-import request, {ResponseError} from 'superagent';
+import request, {ResponseError, Response} from 'superagent';
 import {LoadCallback, LoadOptions} from '../typedefs';
 import Bluebird from 'bluebird';
 
@@ -68,7 +68,7 @@ export function load (
   callback: LoadCallback
 ) {
   loadAsync(location, options).then(
-    (document) => {
+    (document: Response) => {
       callback(null, document);
     },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -84,7 +84,7 @@ function processRequest (method: Methods, location: string) {
   return request[method](location);
 }
 
-export async function loadAsync (location: string, options: LoadOptions): Promise<string> {
+export async function loadAsync (location: string, options: LoadOptions): Promise<Response> {
   const realMethod = options.method ? options.method.toLowerCase() : 'get';
 
   const err = validateOptions(options);
@@ -102,15 +102,13 @@ export async function loadAsync (location: string, options: LoadOptions): Promis
   try {
   if (options.prepareRequest) {
     const pr = Bluebird.promisify(options.prepareRequest);
-    const d = await pr(realRequest);
+    const d: Response = await pr(realRequest);
 
-    return d.text;
+    return d;
   }
+    const d: Response = await realRequest;
 
-
-    const d = await realRequest;
-
-    return d.text;
+    return d;
   } catch (err: unknown) {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

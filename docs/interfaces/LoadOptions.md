@@ -10,6 +10,12 @@ Options used when loading a path.
 | :------ | :------ |
 | `T` | `any` |
 
+## Hierarchy
+
+- [`LoadOptionsBase`](LoadOptionsBase.md)
+
+  ↳ **`LoadOptions`**
+
 ## Table of contents
 
 ### Properties
@@ -27,9 +33,13 @@ Options used when loading a path.
 
 The encoding to use when loading the file *(File loader only)*
 
+#### Inherited from
+
+[LoadOptionsBase](LoadOptionsBase.md).[encoding](LoadOptionsBase.md#encoding)
+
 #### Defined in
 
-[src/typedefs.ts:24](https://github.com/rkesters/path-loader/blob/f2003c2/src/typedefs.ts#L24)
+[src/typedefs.ts:66](https://github.com/rkesters/path-loader/blob/ab01c7e/src/typedefs.ts#L66)
 
 ___
 
@@ -39,9 +49,13 @@ ___
 
 The HTTP method to use for the request *(HTTP loader only)*
 
+#### Inherited from
+
+[LoadOptionsBase](LoadOptionsBase.md).[method](LoadOptionsBase.md#method)
+
 #### Defined in
 
-[src/typedefs.ts:28](https://github.com/rkesters/path-loader/blob/f2003c2/src/typedefs.ts#L28)
+[src/typedefs.ts:70](https://github.com/rkesters/path-loader/blob/ab01c7e/src/typedefs.ts#L70)
 
 ___
 
@@ -51,18 +65,22 @@ ___
 
 The callback used to prepare the request *(HTTP loader only)*
 
+#### Inherited from
+
+[LoadOptionsBase](LoadOptionsBase.md).[prepareRequest](LoadOptionsBase.md#preparerequest)
+
 #### Defined in
 
-[src/typedefs.ts:32](https://github.com/rkesters/path-loader/blob/f2003c2/src/typedefs.ts#L32)
+[src/typedefs.ts:74](https://github.com/rkesters/path-loader/blob/ab01c7e/src/typedefs.ts#L74)
 
 ___
 
 ### processContent
 
-• `Optional` **processContent**: [`ProcessResponseCallback`](../modules.md#processresponsecallback)<`T`\>
+• **processContent**: [`ProcessResponseCallback`](../modules.md#processresponsecallback)<`T`\>
 
 The callback used to process the response
 
 #### Defined in
 
-[src/typedefs.ts:36](https://github.com/rkesters/path-loader/blob/f2003c2/src/typedefs.ts#L36)
+[src/typedefs.ts:84](https://github.com/rkesters/path-loader/blob/ab01c7e/src/typedefs.ts#L84)

@@ -73,7 +73,7 @@ describe('path-loader (browser loaders)', function () {
 
       it('relative existing file (with dot)', function (done) {
         pathLoader
-          .load<string>('./base/browser/project.json')
+          .load('./base/browser/project.json')
           .then(JSON.parse)
           .then(function (json) {
             assert.deepEqual(projectJson, json);

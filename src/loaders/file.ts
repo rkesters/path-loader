@@ -25,8 +25,8 @@
 
 import fs from 'fs';
 import path from 'path';
-import {LoadCallback, LoadOptions} from '../typedefs';
-import {isString, isUndefined} from 'lodash';
+import { LoadCallback, LoadOptions, LoadOptionsBase } from '../typedefs';
+import { isString, isUndefined } from 'lodash';
 
 /**
  * Loads a file from the filesystem.
@@ -35,42 +35,36 @@ import {isString, isUndefined} from 'lodash';
  * @param options - The loader options (Unused)
  * @param callback - The error-first callback
  */
-export function load (
-  location: string,
-  options: LoadOptions,
-  callback: LoadCallback
-) {
-
-  loadAsync(location, options)
-    .then((data) => {
-      callback(null, data);
-    })
-    .catch((err: Error) => callback(err));
+export function load(location: string, options: LoadOptionsBase, callback: LoadCallback): void;
+export function load<T = any>(location: string, options: LoadOptions<T>, callback: LoadCallback): void;
+export function load<T = any>(location: string, options: LoadOptions<T> | LoadOptionsBase, callback: LoadCallback): void {
+    loadAsync(location, options)
+        .then((data) => {
+            callback(null, data);
+        })
+        .catch((err: Error) => callback(err));
 }
+export async function loadAsync<T = any>(location: string, options: LoadOptions<T>): Promise<string>;
+export async function loadAsync(location: string, options: LoadOptionsBase): Promise<string>;
+export async function loadAsync<T = any>(location: string, options: LoadOptionsBase | LoadOptions<T>): Promise<string> {
+    if (!isUndefined(options.encoding) && !isString(options.encoding)) {
+        throw new TypeError(`options.encoding must be a string`);
+    }
 
-export async function loadAsync (location: string, options: LoadOptions) {
+    // Strip the scheme portion of the URI
+    if (location.startsWith('file://')) {
+        // Handle URI
+        location = location.substring(7);
+    }
 
-  console.log('Start');
-  if (!isUndefined(options.encoding) && !isString(options.encoding)) {
-    throw new TypeError(`options.encoding must be a string`);
-  }
-  console.log(`'Valid' ${options.encoding}`);
+    if (path.resolve(location) !== path.normalize(location)) {
+        console.log(`Resolve relative path ${location}`);
+        // Handle relative paths
+        location = path.resolve(process.cwd(), location);
+    }
 
+    const data = fs.readFileSync(location, {});
 
-  // Strip the scheme portion of the URI
-  if (location.startsWith('file://')) {
-    // Handle URI
-    location = location.substring(7);
-  }
-
-  if (path.resolve(location) !== path.normalize(location)) {
-    console.log(`Resolve relative path ${location}`);
-    // Handle relative paths
-    location = path.resolve(process.cwd(), location);
-  }
-
-  const data = fs.readFileSync(location, {});
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return data.toString((options.encoding ?? 'utf-8') as any);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return data.toString((options.encoding ?? 'utf-8') as any);
 }
